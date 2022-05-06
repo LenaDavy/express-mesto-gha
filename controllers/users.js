@@ -25,7 +25,8 @@ module.exports.getUserById = (req, res) => {
 
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
+  if (name.lenght < 2) { return res.status(BAD_REQUEST).send({ message: 'Ошибка обработки данных' }); }
+  return User.create({ name, about, avatar })
     .then((newUser) => res.send({ data: newUser }))
     .catch((err) => {
       if (err.name === 'BadRequest') {
