@@ -21,6 +21,9 @@ app.use((req, res, next) => {
 });
 app.use('/users', routerUsers);
 app.use('/cards', routerCards);
+app.use('*', (req, res) => {
+  res.status(NOT_FOUND).send({ message: 'Объект не найден' });
+});
 
 app.listen(PORT);
 module.exports = { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR };
