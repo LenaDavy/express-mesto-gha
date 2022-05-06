@@ -5,7 +5,7 @@ module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
     .catch((err) => {
-      if (err.name === 'NotFound') {
+      if (err.name === 'notFound') {
         return res.status(NOT_FOUND).send({ message: 'Объект не найден' });
       }
       return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка работы сервера' });
@@ -16,7 +16,7 @@ module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((userId) => res.send({ data: userId }))
     .catch((err) => {
-      if (err.name === 'NotFound') {
+      if (err.name === 'notFound') {
         return res.status(NOT_FOUND).send({ message: 'Объект не найден' });
       }
       return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка работы сервера' });
@@ -25,12 +25,11 @@ module.exports.getUserById = (req, res) => {
 
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
-  if (name.legth < 2) { return res.status(NOT_FOUND).send({ message: 'Объект не найден' }); }
-  return User.create({ name, about, avatar })
+  User.create({ name, about, avatar })
     .then((newUser) => res.send({ data: newUser }))
     .catch((err) => {
-      if (err.name === 'BadRequest') {
-        return res.status(BAD_REQUEST).send({ message: 'Ошибка обработки данных' });
+      if (err.name === 'notFound') {
+        return res.status(NOT_FOUND).send({ message: 'Объект не найден' });
       }
       return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка работы сервера' });
     });
