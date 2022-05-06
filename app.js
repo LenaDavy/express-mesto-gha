@@ -3,10 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const routerUsers = require('./routes/users');
 const routerCards = require('./routes/cards');
-
-const BAD_REQUEST = 400;
-const NOT_FOUND = 404;
-const INTERNAL_SERVER_ERROR = 500;
+const { NOT_FOUND } = require('./utils/constants');
 
 const app = express();
 const PORT = 3000;
@@ -26,4 +23,3 @@ app.use('*', (req, res) => {
 });
 
 app.listen(PORT);
-module.exports = { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR };
