@@ -35,11 +35,7 @@ app.post('/signin', celebrate({
 
 app.use('/users', auth, routerUsers);
 
-app.use('/cards', auth, celebrate({
-  headers: Joi.object().keys({
-    authorization: Joi.string().min(2).max(200).required(),
-  }),
-}), routerCards);
+app.use('/cards', auth, routerCards);
 
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Объект не найден' });
