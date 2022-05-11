@@ -86,7 +86,6 @@ module.exports.getUsers = (req, res, next) => {
 module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((userId) => {
-      console.log(userId);
       if (userId == null) {
         res.status(404).send({ message: 'Объект не найден' });
       } res.send({ data: userId });
