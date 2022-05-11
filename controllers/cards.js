@@ -1,67 +1,58 @@
 const Card = require('../models/card');
-const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require('../utils/constants');
+const { NotFoundError } = require('../errors/NotFoundError');
+const { ValidationError } = require('../errors/ValidationError');
+const { InternalServerError } = require('../errors/InternalServerError');
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
-    .then((newCard) => res.send({ data: newCard }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(BAD_REQUEST).send({ message: 'Ошибка обработки данных' });
-      }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка работы сервера' });
-    });
+    .then((newCard) => {
+      if (!newCard) {
+        throw new ValidationError('Ошибка обработки данных');
+      } res.send({ data: newCard });
+    })
+    .catch(next);
 };
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
-    .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка работы сервера' }));
+    .then((cards) => {
+      if (!cards) {
+        throw new InternalServerError('Ошибка работы сервера');
+      } res.send({ data: cards });
+    })
+    .catch(next);
 };
 
-module.exports.deleteCardById = (req, res) => Card.findByIdAndRemove(req.params.cardId)
+module.exports.deleteCardById = (req, res, next) => Card.findByIdAndRemove(req.params.cardId)
   .then((cards) => {
     if (!cards) {
-      return res.status(NOT_FOUND).send({ message: 'Объект не найден' });
-    } return res.send({ data: cards });
+      throw new NotFoundError('Объект не найден');
+    } res.send({ data: cards });
   })
-  .catch((err) => {
-    if (err.name === 'CastError') {
-      return res.status(BAD_REQUEST).send({ message: 'Ошибка обработки данных' });
-    } return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка работы сервера' });
-  });
+  .catch(next);
 
-module.exports.putCardLike = (req, res) => Card.findByIdAndUpdate(
+module.exports.putCardLike = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,
   { $addToSet: { likes: req.user._id } },
   { new: true },
 )
   .then((cards) => {
     if (!cards) {
-      return res.status(NOT_FOUND).send({ message: 'Объект не найден' });
-    } return res.send({ data: cards });
+      throw new NotFoundError('Объект не найден');
+    } res.send({ data: cards });
   })
-  .catch((err) => {
-    if (err.name === 'CastError') {
-      return res.status(BAD_REQUEST).send({ message: 'Ошибка обработки данных' });
-    }
-    return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка работы сервера' });
-  });
+  .catch(next);
 
-module.exports.deleteCardLike = (req, res) => Card.findByIdAndUpdate(
+module.exports.deleteCardLike = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,
   { $pull: { likes: req.user._id } },
   { new: true },
 )
   .then((cards) => {
     if (!cards) {
-      return res.status(NOT_FOUND).send({ message: 'Объект не найден' });
-    } return res.send({ data: cards });
+      throw new NotFoundError('Объект не найден');
+    } res.send({ data: cards });
   })
-  .catch((err) => {
-    if (err.name === 'CastError') {
-      return res.status(BAD_REQUEST).send({ message: 'Ошибка обработки данных' });
-    }
-    return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка работы сервера' });
-  });
+  .catch(next);
