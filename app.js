@@ -34,14 +34,17 @@ app.post('/signin', celebrate({
   }),
 }), login);
 
-app.use(auth, celebrate({
+app.use('/users', auth, celebrate({
   headers: Joi.object().keys({
     authorization: Joi.string().min(2).max(200).required(),
   }),
-}));
+}), routerUsers);
 
-app.use('/users', routerUsers);
-app.use('/cards', routerCards);
+app.use('/cards', auth, celebrate({
+  headers: Joi.object().keys({
+    authorization: Joi.string().min(2).max(200).required(),
+  }),
+}), routerCards);
 
 app.use('*', (req, res) => {
   res.status(NotFoundError).send({ message: 'Объект не найден' });
