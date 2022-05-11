@@ -27,10 +27,13 @@ module.exports.getCards = (req, res, next) => {
 module.exports.deleteCardById = (req, res, next) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
-      console.log(card);
       if (card == null) {
         res.status(404).send({ message: 'Объект не найден' });
-      } res.send({ data: card });
+      }
+      if (card.owner !== req.user._id) {
+        res.status(403).send({ message: 'Доступ ограничен' });
+      }
+      res.send({ data: card });
     })
     .catch(next);
 };
