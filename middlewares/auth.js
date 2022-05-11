@@ -10,9 +10,9 @@ module.exports = (req, res, next) => {
   } let payload;
   try {
     payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
-    console.log(payload);
   } catch (err) {
     return res.status(401).send({ message: 'Необходима авторизация' });
   } req.user = payload;
+  console.log(req);
   return next();
 };
