@@ -11,9 +11,24 @@ routerCards.post('/', celebrate({
       .regex(/^((ftp|http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Яа-я0-9-]*\.?)*\.{1}[A-Za-zА-Яа-я0-9-]{2,8}(\/([\w#!:.?+=&%@!\-/])*)?/),
   }),
 }), createCard);
+
 routerCards.get('/', getCards);
-routerCards.delete('/:cardId', deleteCardById);
-routerCards.put('/:cardId/likes', putCardLike);
-routerCards.delete('/:cardId/likes', deleteCardLike);
+routerCards.delete('/:cardId', celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().alphanum().length(24),
+  }),
+}), deleteCardById);
+
+routerCards.put('/:cardId/likes', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().alphanum().length(24),
+  }),
+}), putCardLike);
+
+routerCards.delete('/:cardId/likes', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().alphanum().length(24),
+  }),
+}), deleteCardLike);
 
 module.exports = routerCards;

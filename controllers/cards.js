@@ -1,5 +1,4 @@
 const Card = require('../models/card');
-const { NotFoundError } = require('../errors/NotFoundError');
 const { ValidationError } = require('../errors/ValidationError');
 const { InternalServerError } = require('../errors/InternalServerError');
 
@@ -27,8 +26,8 @@ module.exports.getCards = (req, res, next) => {
 
 module.exports.deleteCardById = (req, res, next) => Card.findByIdAndRemove(req.params.cardId)
   .then((cards) => {
-    if (!cards) {
-      throw new NotFoundError('Объект не найден');
+    if (cards == null) {
+      res.status(404).send({ message: 'Объект не найден' });
     } res.send({ data: cards });
   })
   .catch(next);
@@ -39,8 +38,8 @@ module.exports.putCardLike = (req, res, next) => Card.findByIdAndUpdate(
   { new: true },
 )
   .then((cards) => {
-    if (!cards) {
-      throw new NotFoundError('Объект не найден');
+    if (cards == null) {
+      res.status(404).send({ message: 'Объект не найден' });
     } res.send({ data: cards });
   })
   .catch(next);
@@ -51,8 +50,8 @@ module.exports.deleteCardLike = (req, res, next) => Card.findByIdAndUpdate(
   { new: true },
 )
   .then((cards) => {
-    if (!cards) {
-      throw new NotFoundError('Объект не найден');
+    if (cards == null) {
+      res.status(404).send({ message: 'Объект не найден' });
     } res.send({ data: cards });
   })
   .catch(next);
