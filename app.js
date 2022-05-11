@@ -33,11 +33,7 @@ app.post('/signin', celebrate({
   }),
 }), login);
 
-app.use('/users', auth, celebrate({
-  headers: Joi.object().keys({
-    authorization: Joi.string().min(2).max(200).required(),
-  }),
-}), routerUsers);
+app.use('/users', auth, routerUsers);
 
 app.use('/cards', auth, celebrate({
   headers: Joi.object().keys({

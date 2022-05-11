@@ -39,16 +39,20 @@ module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email }).select('+password')
     .then((user) => {
-      if (!user) {
-        throw new Unauthorized('Неправильная почта или пароль');
-      }
-      return bcrypt.compare(password, user.password)
+      if (user == null) {
+        res.status(401).send({ message: 'Неправильная почта или пароль' });
+      } bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
             throw new Unauthorized('Неправильная почта или пароль');
-          }
-          const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
-          return res.cookie('jwt', token, { maxAge: 3600000, httpOnly: true, sameSite: true }).end();
+          } const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
+          res.cookie('jwt', token, { maxAge: 3600000, httpOnly: true, sameSite: true }).send({
+            name: user.name,
+            about: user.about,
+            avatar: user.avatar,
+            email: user.email,
+            _id: user._id,
+          });
         });
     })
     .catch(next);
@@ -59,7 +63,13 @@ module.exports.getMe = (req, res, next) => {
     .then((user) => {
       if (!user) {
         throw new InternalServerError('Ошибка работы сервера');
-      } res.send({ data: user });
+      } res.send({
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+        _id: user._id,
+      });
     })
     .catch(next);
 };
