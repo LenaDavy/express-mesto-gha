@@ -46,8 +46,9 @@ app.use('/cards', auth, celebrate({
   }),
 }), routerCards);
 
-app.use('*', (req, res) => {
-  res.status(NotFoundError).send({ message: 'Объект не найден' });
+app.use('*', (req, res, next) => {
+  throw new NotFoundError('Объект не найден')
+    .catch(next);
 });
 
 app.use(errors());
