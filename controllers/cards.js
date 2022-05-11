@@ -24,13 +24,16 @@ module.exports.getCards = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.deleteCardById = (req, res, next) => Card.findByIdAndRemove(req.params.cardId)
-  .then((cards) => {
-    if (cards == null) {
-      res.status(404).send({ message: 'Объект не найден' });
-    } res.send({ data: cards });
-  })
-  .catch(next);
+module.exports.deleteCardById = (req, res, next) => {
+  Card.findByIdAndRemove(req.params.cardId)
+    .then((card) => {
+      console.log(card);
+      if (card == null) {
+        res.status(404).send({ message: 'Объект не найден' });
+      } res.send({ data: card });
+    })
+    .catch(next);
+};
 
 module.exports.putCardLike = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,
