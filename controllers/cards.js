@@ -32,8 +32,7 @@ module.exports.deleteCardById = (req, res, next) => {
       }
       if (card.owner !== req.user._id) {
         res.status(403).send({ message: 'Доступ ограничен' });
-      }
-      res.send({ data: card });
+      } else { res.send({ data: card }); }
     })
     .catch(next);
 };
