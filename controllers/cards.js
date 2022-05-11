@@ -29,10 +29,9 @@ module.exports.deleteCardById = (req, res, next) => {
     .then((card) => {
       if (card == null) {
         res.status(404).send({ message: 'Объект не найден' });
-      }
-      if (card.owner !== req.user._id) {
+      } else if (card.owner !== req.user._id) {
         res.status(403).send({ message: 'Доступ ограничен' });
-      } else { res.send({ data: card }); }
+      } else { res.status(200).send({ data: card }); }
     })
     .catch(next);
 };
