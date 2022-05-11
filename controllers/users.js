@@ -19,10 +19,20 @@ module.exports.createUser = (req, res, next) => {
     }))
     .then((newUser) => {
       if (!newUser) {
-        throw new Unauthorized('Неправильная почта или пароль');
-      } res.send({ data: newUser });
+        throw new ValidationError('Ошибка обработки данных');
+      } res.send({
+        name: newUser.name,
+        about: newUser.about,
+        avatar: newUser.avatar,
+        email: newUser.email,
+        _id: newUser._id,
+      });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.code === 11000) {
+        res.status(409).send({ message: 'Некорректный запрос' });
+      } next(err);
+    });
 };
 
 module.exports.login = (req, res, next) => {
