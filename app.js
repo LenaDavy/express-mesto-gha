@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const { celebrate, Joi, errors } = require('celebrate');
 const routerUsers = require('./routes/users');
 const routerCards = require('./routes/cards');
-const { NotFoundError } = require('./errors/NotFoundError');
+const { InternalServerError } = require('./errors/InternalServerError');
 const auth = require('./middlewares/auth');
 const { login, createUser } = require('./controllers/users');
 
@@ -47,7 +47,7 @@ app.use('/cards', auth, celebrate({
 }), routerCards);
 
 app.use('*', (req, res, next) => {
-  throw new NotFoundError('Объект не найден')
+  throw new InternalServerError('Ошибка работы сервера')
     .catch(next);
 });
 

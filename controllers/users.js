@@ -19,7 +19,7 @@ module.exports.createUser = (req, res, next) => {
     }))
     .then((newUser) => {
       if (!newUser) {
-        throw new ValidationError('Ошибка обработки данных');
+        throw new Unauthorized('Неправильная почта или пароль');
       } res.send({ data: newUser });
     })
     .catch(next);
