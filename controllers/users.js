@@ -38,7 +38,7 @@ module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email }).select('+password')
     .then((user) => {
-      if (user == null) {
+      if (user === null) {
         throw new Unauthorized('Неправильная почта или пароль');
       } bcrypt.compare(password, user.password)
         .then((matched) => {
