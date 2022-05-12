@@ -1,6 +1,7 @@
 const Card = require('../models/card');
-const { ValidationError } = require('../errors/ValidationError');
-const { InternalServerError } = require('../errors/InternalServerError');
+const ValidationError = require('../errors/ValidationError');
+const NotFoundError = require('../errors/NotFoundError');
+const Forbidden = require('../errors/Forbidden');
 
 module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
@@ -18,8 +19,8 @@ module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => {
       if (!cards) {
-        throw new InternalServerError('Ошибка работы сервера');
-      } res.send({ data: cards });
+        return Promise.reject;
+      } return res.send({ data: cards });
     })
     .catch(next);
 };
@@ -28,34 +29,38 @@ module.exports.deleteCardById = (req, res, next) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (card == null) {
-        res.status(404).send({ message: 'Объект не найден' });
-      } else if (card.owner !== req.user._id) {
-        res.status(403).send({ message: 'Доступ ограничен' });
-      } else { res.status(200).send({ data: card }); }
+        throw new NotFoundError('Объект не найден');
+      } else if (JSON.stringify(card.owner) !== req.user._id) {
+        throw new Forbidden('Доступ ограничен');
+      } return res.send({ data: card });
     })
     .catch(next);
 };
 
-module.exports.putCardLike = (req, res, next) => Card.findByIdAndUpdate(
-  req.params.cardId,
-  { $addToSet: { likes: req.user._id } },
-  { new: true },
-)
-  .then((cards) => {
-    if (cards == null) {
-      res.status(404).send({ message: 'Объект не найден' });
-    } res.send({ data: cards });
-  })
-  .catch(next);
+module.exports.putCardLike = (req, res, next) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $addToSet: { likes: req.user._id } },
+    { new: true },
+  )
+    .then((cards) => {
+      if (cards == null) {
+        throw new NotFoundError('Объект не найден');
+      } res.send({ data: cards });
+    })
+    .catch(next);
+};
 
-module.exports.deleteCardLike = (req, res, next) => Card.findByIdAndUpdate(
-  req.params.cardId,
-  { $pull: { likes: req.user._id } },
-  { new: true },
-)
-  .then((cards) => {
-    if (cards == null) {
-      res.status(404).send({ message: 'Объект не найден' });
-    } res.send({ data: cards });
-  })
-  .catch(next);
+module.exports.deleteCardLike = (req, res, next) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $pull: { likes: req.user._id } },
+    { new: true },
+  )
+    .then((cards) => {
+      if (cards == null) {
+        throw new NotFoundError('Объект не найден');
+      } res.send({ data: cards });
+    })
+    .catch(next);
+};
