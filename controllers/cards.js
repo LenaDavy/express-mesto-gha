@@ -30,9 +30,11 @@ module.exports.deleteCardById = (req, res, next) => {
     .then((card) => {
       if (card == null) {
         throw new NotFoundError('Объект не найден');
-      } else if (JSON.stringify(card.owner) !== req.user._id) {
-        throw new Forbidden('Доступ ограничен');
-      } return res.send({ data: card });
+      } else {
+        if (JSON.stringify(card.owner) !== req.user._id) {
+          throw new Forbidden('Доступ ограничен');
+        } return res.send({ data: card });
+      }
     })
     .catch(next);
 };

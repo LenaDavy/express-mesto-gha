@@ -37,13 +37,13 @@ app.post('/signin', celebrate({
 app.use('/users', auth, routerUsers);
 app.use('/cards', auth, routerCards);
 
-app.use(errors());
-
 app.use('*', (req, res, next) => {
   try {
     throw new NotFoundError('Объект не найден');
-  } catch (err) { return next(err); }
+  } catch (err) { next(err); }
 });
+
+app.use(errors());
 
 app.use((err, req, res) => {
   const { statusCode = 500, message } = err;
