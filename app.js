@@ -36,20 +36,16 @@ app.post('/signin', celebrate({
 
 app.use('/users', auth, routerUsers);
 app.use('/cards', auth, routerCards);
-
 app.use('*', (req, res, next) => {
-  try {
-    throw new NotFoundError('Объект не найден');
-  } catch (err) { next(err); }
+  Promise.reject(new NotFoundError('Объект не найден'))
+    .catch(next);
 });
-
-app.use((err, req, res) => {
-  const { statusCode = 500, message } = err;
-  res.status(statusCode).send({
-    message: statusCode === 500 ? 'Ошибка работы сервера' : message,
-  });
-});
-
 app.use(errors());
+
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+  res.status(statusCode).send({ message: statusCode === 500 ? 'Ошибка работы сервера' : message });
+  next();
+});
 
 app.listen(PORT);

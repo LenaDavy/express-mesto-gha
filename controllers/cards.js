@@ -26,13 +26,16 @@ module.exports.getCards = (req, res, next) => {
 };
 
 module.exports.deleteCardById = (req, res, next) => {
-  if (JSON.stringify(req.params.card.owner) !== req.user._id) {
-    throw new Forbidden('Доступ ограничен');
-  } Card.findByIdAndRemove(req.params.cardId)
+  Card.findById(req.params.cardId)
     .then((card) => {
       if (card == null) {
         throw new NotFoundError('Объект не найден');
-      } return res.send({ data: card });
+      } else if (String(card.owner) !== req.user._id) {
+        throw new Forbidden('Доступ ограничен');
+      } Card.findByIdAndRemove(req.params.cardId)
+        .then((removedCard) => {
+          res.send({ data: removedCard });
+        });
     })
     .catch(next);
 };
