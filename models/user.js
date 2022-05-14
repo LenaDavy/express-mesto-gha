@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const ValidationError = require('../errors/ValidationError');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -16,12 +17,12 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
-    validate: validator.isUrl(),
+    validate(value) { if (!validator.isUrl(value)) { throw new ValidationError('Введены ны некорректные данные'); } },
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
   },
   email: {
     type: String,
-    validate: validator.isEmail(),
+    validate(value) { if (!validator.isEmail(value)) { throw new ValidationError('Введены ны некорректные данные'); } },
     required: true,
     unique: true,
   },

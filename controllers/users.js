@@ -1,11 +1,11 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const User = require('../models/user');
 const ValidationError = require('../errors/ValidationError');
 const Unauthorized = require('../errors/Unauthorized');
 const NotFoundError = require('../errors/NotFoundError');
 const ConflictingRequest = require('../errors/ConflictingRequest');
+const User = require('../models/user');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -35,7 +35,7 @@ module.exports.createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ValidationError('Переданы некорректные данные'));
+        next(new ValidationError('Введены ны некорректные данные'));
       } next(err);
     });
 };
