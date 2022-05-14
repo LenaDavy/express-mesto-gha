@@ -8,7 +8,6 @@ const routerCards = require('./routes/cards');
 const auth = require('./middlewares/auth');
 const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./errors/NotFoundError');
-const handleError = require('./middlewares/handleError');
 
 const app = express();
 app.use(cookieParser());
@@ -48,7 +47,8 @@ app.use('*', auth, (req, res, next) => {
 app.use(errors());
 
 app.use((err, req, res, next) => {
-  handleError(err, res);
+  const { statusCode = 500, message } = err;
+  res.status(statusCode).send({ message: statusCode === 500 ? 'Ошибка работы сервера' : message });
   next();
 });
 
