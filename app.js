@@ -47,8 +47,6 @@ app.use('*', auth, (req, res, next) => {
 
 app.use(errors());
 
-app.use((err, req, res, next) => {
-  handleError(err, res, next);
-});
+app.use((err, req, res, next) => { handleError(err, res, next); });
 
 app.listen(PORT);
