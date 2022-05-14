@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const User = require('./user');
-const ValidationError = require('../errors/ValidationError');
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -12,7 +11,7 @@ const cardSchema = new mongoose.Schema({
   },
   link: {
     type: String,
-    validate(value) { if (!validator.isUrl(value)) { throw new ValidationError('Введены ны некорректные данные'); } },
+    validate(value) { validator.isUrl(value); },
     required: true,
   },
   owner: {
