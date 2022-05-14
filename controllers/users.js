@@ -5,21 +5,27 @@ const User = require('../models/user');
 const ValidationError = require('../errors/ValidationError');
 const Unauthorized = require('../errors/Unauthorized');
 const NotFoundError = require('../errors/NotFoundError');
+const ConflictingRequest = require('../errors/ConflictingRequest');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 module.exports.createUser = (req, res, next) => {
   const {
-    name, about, avatar, email,
+    name, about, avatar, email, password,
   } = req.body;
-  bcrypt.hash(req.body.password, 10)
+  User.findOne({ email })
+    .then((user) => {
+      if (user) {
+        throw new ConflictingRequest('Пользователь с данным email уже существует');
+      } return bcrypt.hash(password, 10);
+    })
     .then((hash) => User.create({
       name, about, avatar, email, password: hash,
     }))
     .then((newUser) => {
       if (!newUser) {
-        throw new ValidationError('Ошибка обработки данных');
-      } res.send({
+        return next(new NotFoundError('Объект не найден'));
+      } return res.send({
         name: newUser.name,
         about: newUser.about,
         avatar: newUser.avatar,
@@ -28,9 +34,9 @@ module.exports.createUser = (req, res, next) => {
       });
     })
     .catch((err) => {
-      if (err.code === 11000) {
-        res.status(409).send({ message: 'Некорректный запрос' });
-      } return next(err);
+      if (err.name === 'ValidationError') {
+        next(new ValidationError('Переданы некорректные данные'));
+      } next(err);
     });
 };
 
@@ -40,7 +46,7 @@ module.exports.login = (req, res, next) => {
     .then((user) => {
       if (user === null) {
         throw new Unauthorized('Неправильная почта или пароль');
-      } bcrypt.compare(password, user.password)
+      } return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
             throw new Unauthorized('Неправильная почта или пароль');
@@ -61,7 +67,7 @@ module.exports.getMe = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (user == null) {
-        return Promise.reject;
+        return next(new NotFoundError('Объект не найден'));
       } return res.send({
         name: user.name,
         about: user.about,
@@ -77,7 +83,7 @@ module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
       if (!users) {
-        return Promise.reject;
+        return next(new NotFoundError('Объект не найден'));
       } return res.send({ data: users });
     })
     .catch(next);
@@ -98,10 +104,14 @@ module.exports.swapProfile = (req, res, next) => {
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((updatedUser) => {
       if (!updatedUser) {
-        throw new ValidationError('Ошибка обработки данных');
+        return next(new NotFoundError('Объект не найден'));
       } return res.send({ data: updatedUser });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new ValidationError('Переданы некорректные данные'));
+      } next(err);
+    });
 };
 
 module.exports.swapAvatar = (req, res, next) => {
@@ -109,8 +119,12 @@ module.exports.swapAvatar = (req, res, next) => {
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((updatedUser) => {
       if (!updatedUser) {
-        throw new ValidationError('Ошибка обработки данных');
+        return next(new NotFoundError('Объект не найден'));
       } return res.send({ data: updatedUser });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new ValidationError('Переданы некорректные данные'));
+      } next(err);
+    });
 };

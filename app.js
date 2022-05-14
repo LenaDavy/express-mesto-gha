@@ -8,6 +8,7 @@ const routerCards = require('./routes/cards');
 const auth = require('./middlewares/auth');
 const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./errors/NotFoundError');
+const handleError = require('./middlewares/handleError');
 
 const app = express();
 app.use(cookieParser());
@@ -34,17 +35,20 @@ app.post('/signin', celebrate({
   }),
 }), login);
 
+app.get('/signout', (req, res) => {
+  res.status(200).clearCookie('jwt').send({ message: 'Выход' });
+});
+
 app.use('/users', auth, routerUsers);
 app.use('/cards', auth, routerCards);
-app.use('*', (req, res, next) => {
-  Promise.reject(new NotFoundError('Объект не найден'))
-    .catch(next);
+app.use('*', auth, (req, res, next) => {
+  next(new NotFoundError('Маршрут не найден'));
 });
+
 app.use(errors());
 
 app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-  res.status(statusCode).send({ message: statusCode === 500 ? 'Ошибка работы сервера' : message });
+  handleError(err, res);
   next();
 });
 

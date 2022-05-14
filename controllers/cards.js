@@ -9,17 +9,21 @@ module.exports.createCard = (req, res, next) => {
   Card.create({ name, link, owner })
     .then((newCard) => {
       if (!newCard) {
-        throw new ValidationError('Ошибка обработки данных');
-      } res.send({ data: newCard });
+        return next(new NotFoundError('Объект не найден'));
+      } return res.send({ data: newCard });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new ValidationError('Переданы некорректные данные'));
+      } next(err);
+    });
 };
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => {
       if (!cards) {
-        return Promise.reject;
+        return next(new NotFoundError('Объект не найден'));
       } return res.send({ data: cards });
     })
     .catch(next);
@@ -32,7 +36,7 @@ module.exports.deleteCardById = (req, res, next) => {
         throw new NotFoundError('Объект не найден');
       } else if (String(card.owner) !== req.user._id) {
         throw new Forbidden('Доступ ограничен');
-      } Card.findByIdAndRemove(req.params.cardId)
+      } return Card.findByIdAndRemove(req.params.cardId)
         .then((removedCard) => {
           res.send({ data: removedCard });
         });
