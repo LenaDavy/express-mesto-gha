@@ -1,0 +1,5 @@
+@import url(../../blocks/tooltip/tooltip.css);
+@import url(../../blocks/tooltip/__main/tooltip__main.css);
+@import url(../../blocks/tooltip/__close/tooltip__close.css);
+@import url(../../blocks/tooltip/__img/tooltip__img.css);
+@import url(../../blocks/tooltip/__text/tooltip__text.css);

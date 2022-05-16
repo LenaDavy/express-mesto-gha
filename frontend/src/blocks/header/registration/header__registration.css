@@ -1,0 +1,19 @@
+.header__registration {
+  align-self: flex-end;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1.22;
+  color: #FFFFFF;
+  text-decoration: none;
+}
+
+.header__registration:hover {
+  opacity: .6;
+}
+
+@media screen and (max-width: 767px) {
+  .header__registration {
+    font-size: 14px;
+    line-height: 1.21;
+  }
+}

@@ -1,0 +1,12 @@
+.identity__form {
+  max-width: 358px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media screen and (max-width: 767px) {
+  .identity__form {
+  max-width: 260px;
+ }
+}
