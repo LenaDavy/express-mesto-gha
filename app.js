@@ -8,6 +8,7 @@ const routerCards = require('./routes/cards');
 const auth = require('./middlewares/auth');
 const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./errors/NotFoundError');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const handleError = require('./middlewares/handleError');
 
 const app = express();
@@ -17,6 +18,8 @@ const PORT = 3000;
 mongoose.connect('mongodb://localhost:27017/mestodb');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(requestLogger);
 
 app.post('/signup', celebrate({
   body: Joi.object().keys({
@@ -44,6 +47,8 @@ app.use('/cards', auth, routerCards);
 app.use('*', auth, (req, res, next) => {
   next(new NotFoundError('Маршрут не найден'));
 });
+
+app.use(errorLogger);
 
 app.use(errors());
 
